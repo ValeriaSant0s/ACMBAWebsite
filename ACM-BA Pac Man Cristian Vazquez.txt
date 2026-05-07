@@ -1,0 +1,169 @@
+<div id="acmba-game-unit">
+    <div id="acm-top-bar">
+        <div id="acm-vol-wrap">
+            <span style="margin-right:5px">VOL</span>
+            <input type="range" id="acm-volume-input" min="0" max="1" step="0.1" value="0.5">
+        </div>
+        <div id="acm-score-box">SCORE: <span id="acm-actual-score">0</span></div>
+    </div>
+
+    <canvas id="acm-maze-canvas" width="380" height="440"></canvas>
+    
+    <div id="acm-dpad">
+        <div class="acm-row"><button class="acm-dir" onmousedown="acmMove(0)" ontouchstart="acmMove(0)">▲</button></div>
+        <div class="acm-row">
+            <button class="acm-dir" onmousedown="acmMove(3)" ontouchstart="acmMove(3)">◀</button>
+            <button class="acm-dir" onmousedown="acmMove(2)" ontouchstart="acmMove(2)">▼</button>
+            <button class="acm-dir" onmousedown="acmMove(1)" ontouchstart="acmMove(1)">▶</button>
+        </div>
+    </div>
+
+    <div id="acm-footer-credit">Track made by Cristian Vazquez</div>
+
+    <div id="acm-gatekeeper">
+        <div id="acm-status-text" style="font-size: 14px; font-weight: bold; color: #00d8ff; letter-spacing: 2px; margin-bottom: 5px;">ACM-BA PRESENTS:</div>
+        <div id="acm-title-text" style="color:#00d8ff; font-size: 26px; font-weight: 900; margin: 0 0 20px; line-height:1.1;">PAC-SYSTEM<br>BLUE EDITION</div>
+        <div id="acm-final-score-wrap" style="display:none; color: #fff; margin-bottom: 15px; font-weight: bold;">TOTAL SCORE: <span id="acm-final-score">0</span></div>
+        <button id="acm-btn-init">START SYSTEM</button>
+    </div>
+
+    <audio id="acm-audio-player" loop>
+        <source src="https://www.uprm.edu/acmba/wp-content/uploads/sites/437/2026/05/main-theme-pac-man-acm-ba-prod.-latin-christian.mp3" type="audio/mpeg">
+    </audio>
+</div>
+
+<style>
+    #acmba-game-unit {
+        display: flex; flex-direction: column; align-items: center; 
+        width: 380px; background: #000; padding: 15px; margin: 20px auto; 
+        border-radius: 15px; position: relative; font-family: monospace; 
+        border: 2px solid #00d8ff; box-shadow: 0 0 20px #00d8ff;
+    }
+    #acm-top-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: #00d8ff; font-weight: bold; }
+    #acm-vol-wrap { display: flex; align-items: center; font-size: 12px; }
+    #acm-volume-input { width: 80px; cursor: pointer; accent-color: #00d8ff; background: #333; height: 6px; border-radius: 5px; }
+    #acm-score-box { font-size: 16px; letter-spacing: 1px; }
+    #acm-maze-canvas { border-radius: 8px; background: #000; border: 1px solid #111; }
+    #acm-dpad { margin-top: 15px; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+    .acm-row { display: flex; gap: 5px; }
+    .acm-dir { width: 50px; height: 50px; background: rgba(0, 216, 255, 0.1); border: 2px solid #00d8ff; color: #00d8ff; border-radius: 10px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .acm-dir:active { background: #00d8ff; color: #000; }
+    #acm-footer-credit { margin-top: 15px; font-size: 10px; color: #00d8ff; opacity: 0.6; }
+    #acm-gatekeeper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 14px; text-align: center; }
+    #acm-btn-init { background: transparent; color: #00d8ff; border: 3px solid #00d8ff; padding: 12px 30px; cursor: pointer; font-size: 16px; font-weight: bold; text-transform: uppercase; border-radius: 5px; transition: 0.3s; }
+    #acm-btn-init:hover { background: #00d8ff; color: #000; }
+</style>
+
+<script>
+(function() {
+    const canvas = document.getElementById('acm-maze-canvas');
+    const ctx = canvas.getContext('2d');
+    const audio = document.getElementById('acm-audio-player');
+    const vol = document.getElementById('acm-volume-input');
+    const scoreDisplay = document.getElementById('acm-actual-score');
+
+    const TILE = 20; const pacSpeed = 2; const ghostSpeed = 1.6;
+    let controls = { current: 1, next: 1 };
+    const KEYS = { ArrowUp: 0, w: 0, W: 0, ArrowRight: 1, d: 1, D: 1, ArrowDown: 2, s: 2, S: 2, ArrowLeft: 3, a: 3, A: 3 };
+
+    let active = false; let score = 0; let frame = 0;
+    const pac = { x: 1, y: 1, dir: 1 };
+    const ghosts = [{ x: 17, y: 19, dir: 3, color: '#00d8ff' }, { x: 1, y: 19, dir: 1, color: '#2121ff' }];
+
+    const originalMaze = [
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0],
+        [0,1,0,0,1,0,0,0,1,0,1,0,0,0,1,0,0,1,0],[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+        [0,1,0,0,1,0,1,0,0,0,0,0,1,0,1,0,0,1,0],[0,1,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,1,0],
+        [0,0,0,0,1,0,0,0,2,0,2,0,0,0,1,0,0,0,0],[0,2,2,0,1,0,2,2,2,2,2,2,2,0,1,0,2,2,0],
+        [0,0,0,0,1,0,2,0,0,0,0,0,2,0,1,0,0,0,0],[2,2,2,2,1,2,2,0,2,2,2,0,2,2,1,2,2,2,2],
+        [0,0,0,0,1,0,2,0,0,0,0,0,2,0,1,0,0,0,0],[0,2,2,0,1,0,2,2,2,2,2,2,2,0,1,0,2,2,0],
+        [0,0,0,0,1,0,2,0,0,0,0,0,2,0,1,0,0,0,0],[0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0],
+        [0,1,0,0,1,0,0,0,1,0,1,0,0,0,1,0,0,1,0],[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+        [0,1,0,0,1,0,1,0,0,0,0,0,1,0,1,0,0,1,0],[0,1,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,1,0],
+        [0,0,0,0,1,0,0,0,1,0,1,0,0,0,1,0,0,0,0],[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    ];
+    let currentMaze = [];
+
+    function drawMaze() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); frame++;
+        ctx.strokeStyle = '#2121ff'; ctx.lineWidth = 2;
+        for(let y=0; y<currentMaze.length; y++) {
+            for(let x=0; x<currentMaze[0].length; x++) {
+                if(currentMaze[y][x] === 0) ctx.strokeRect(x*TILE+2, y*TILE+2, TILE-4, TILE-4);
+                if(currentMaze[y][x] === 1) { ctx.fillStyle = '#00d8ff'; ctx.beginPath(); ctx.arc(x*TILE+10, y*TILE+10, 2, 0, 7); ctx.fill(); }
+            }
+        }
+        ctx.fillStyle = '#00d8ff'; ctx.beginPath();
+        let m = Math.abs(Math.sin(frame*0.2)*0.4);
+        let a = [[1.25, 1.75], [0.25, 1.75], [0.75, 1.25], [1.75, 1.25]][pac.dir];
+        ctx.arc(pac.x*TILE+10, pac.y*TILE+10, 8, (a[0]+m)*Math.PI, (a[1]-m)*Math.PI);
+        ctx.lineTo(pac.x*TILE+10, pac.y*TILE+10); ctx.fill();
+        ghosts.forEach(g => {
+            ctx.fillStyle = g.color; ctx.beginPath(); ctx.arc(g.x*TILE+10, g.y*TILE+8, 8, Math.PI, 0);
+            ctx.lineTo(g.x*TILE+18, g.y*TILE+18); ctx.lineTo(g.x*TILE+2, g.y*TILE+18); ctx.fill();
+        });
+    }
+
+    function checkWall(x, y) { return currentMaze[Math.floor(y)] === undefined || currentMaze[Math.floor(y)][Math.floor(x)] === 0; }
+
+    function moveEntity(e, s, p) {
+        let d = [[0,-1],[1,0],[0,1],[-1,0]];
+        if(p && controls.next !== null) {
+            let n = d[controls.next];
+            if(!checkWall(Math.round(e.x)+n[0], Math.round(e.y)+n[1])) e.dir = controls.next;
+        }
+        let cur = d[e.dir];
+        let nX = e.x + cur[0]*(s/TILE); let nY = e.y + cur[1]*(s/TILE);
+        if(!checkWall(nX+0.1, nY+0.1) && !checkWall(nX+0.9, nY+0.9)) { e.x = nX; e.y = nY; } 
+        else { e.x = Math.round(e.x); e.y = Math.round(e.y); if(!p) e.dir = Math.floor(Math.random()*4); }
+        if(e.x > 18) e.x = 0; if(e.x < 0) e.x = 18;
+    }
+
+    window.acmMove = function(d) { controls.next = d; };
+
+    function loop() {
+        if(!active) return; requestAnimationFrame(loop);
+        moveEntity(pac, pacSpeed, true); ghosts.forEach(g => moveEntity(g, ghostSpeed, false)); 
+        drawMaze();
+        let x = Math.round(pac.x), y = Math.round(pac.y);
+        if(currentMaze[y] && currentMaze[y][x] === 1) { currentMaze[y][x] = 2; score += 10; scoreDisplay.innerText = score; }
+        ghosts.forEach(g => { if(Math.hypot(g.x-pac.x, g.y-pac.y) < 0.6) endGame(); });
+    }
+
+    function endGame() {
+        active = false;
+        audio.pause();
+        document.getElementById('acm-status-text').innerText = "SYSTEM FAILURE";
+        document.getElementById('acm-title-text').innerText = "GAME OVER";
+        document.getElementById('acm-final-score').innerText = score;
+        document.getElementById('acm-final-score-wrap').style.display = 'block';
+        document.getElementById('acm-btn-init').innerText = "REBOOT SYSTEM";
+        document.getElementById('acm-gatekeeper').style.display = 'flex';
+    }
+
+    function resetInternalState() {
+        currentMaze = originalMaze.map(row => [...row]); // Deep copy
+        score = 0; scoreDisplay.innerText = "0";
+        pac.x = 1; pac.y = 1; pac.dir = 1;
+        ghosts[0].x = 17; ghosts[0].y = 19; ghosts[1].x = 1; ghosts[1].y = 19;
+        controls.next = 1;
+    }
+
+    vol.addEventListener('input', (e) => { audio.volume = e.target.value; });
+
+    document.getElementById('acm-btn-init').addEventListener('click', function() {
+        resetInternalState();
+        document.getElementById('acm-gatekeeper').style.display = 'none';
+        active = true; audio.volume = vol.value; audio.currentTime = 0;
+        audio.play().catch(() => {}); requestAnimationFrame(loop);
+    });
+
+    document.addEventListener('keydown', e => { 
+        if(KEYS[e.key] !== undefined) {
+            controls.next = KEYS[e.key]; 
+            if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) e.preventDefault();
+        }
+    });
+})();
+</script>
