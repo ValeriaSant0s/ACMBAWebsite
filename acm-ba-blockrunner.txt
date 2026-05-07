@@ -1,0 +1,154 @@
+/* ===== ACM-BA MENU FINAL CLEAN VERSION ===== */
+
+@media (min-width: 992px) {
+
+  /* Remove default theme hover fill */
+  html body #page .masthead .main-nav > li,
+  html body #page .masthead .main-nav > li:hover,
+  html body #page .masthead .main-nav > .dt-hovered,
+  html body #page .masthead .main-nav > .act,
+  html body #page .masthead .main-nav > .current-menu-item,
+  html body #page .masthead .main-nav > .current-menu-ancestor {
+    background: transparent;
+  }
+
+  html body #page .masthead .main-nav > li > a,
+  html body #page .masthead .main-nav > li:hover > a,
+  html body #page .masthead .main-nav > .dt-hovered > a,
+  html body #page .masthead .main-nav > .act > a,
+  html body #page .masthead .main-nav > .current-menu-item > a,
+  html body #page .masthead .main-nav > .current-menu-ancestor > a {
+    background: transparent;
+    box-shadow: none;
+    border: 0;
+  }
+
+  /* Hide Home icon */
+  html body #page .masthead .main-nav > li.menu-item-home > a i,
+  html body #page .masthead .main-nav > li.menu-item-home > a svg,
+  html body #page .masthead .main-nav > li.menu-item-home > a .fa,
+  html body #page .masthead .main-nav > li.menu-item-home > a .fas,
+  html body #page .masthead .main-nav > li.menu-item-home > a .menu-icon {
+    display: none;
+  }
+
+  /* Hide default dropdown indicators to avoid weird dots */
+  html body #page .masthead .main-nav > .menu-item-has-children > a:before,
+  html body #page .masthead .main-nav > .menu-item-has-children > a:after,
+  html body #page .masthead .main-nav > .menu-item-has-children > a .next-level-button,
+  html body #page .masthead .main-nav > .menu-item-has-children > a .menu-item-arrow {
+    display: none;
+  }
+
+  /* Base menu text */
+  html body #page .masthead .main-nav > li > a .menu-text,
+  html body #page .masthead .main-nav > li > a .menu-item-text {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 6px 14px;
+    line-height: 1.1;
+    border-radius: 999px;
+    background: transparent;
+    box-shadow: none;
+    font-weight: 600;
+    transform: none;
+    transition: all 0.22s ease;
+    background-image: linear-gradient(135deg, #2937ff 0%, #9a85ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: #2937ff;
+  }
+
+  /* Add one clean dropdown arrow */
+  html body #page .masthead .main-nav > .menu-item-has-children > a .menu-text:after,
+  html body #page .masthead .main-nav > .menu-item-has-children > a .menu-item-text:after {
+    content: "▼";
+    font-size: 9px;
+    line-height: 1;
+    margin-left: 4px;
+    background-image: linear-gradient(135deg, #2937ff 0%, #9a85ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: #2937ff;
+  }
+
+  /* Hover state */
+  html body #page .masthead .main-nav > li:hover > a .menu-text,
+  html body #page .masthead .main-nav > li:hover > a .menu-item-text,
+  html body #page .masthead .main-nav > .dt-hovered > a .menu-text,
+  html body #page .masthead .main-nav > .dt-hovered > a .menu-item-text {
+    background: linear-gradient(135deg, #2937ff 0%, #9a85ff 100%);
+    -webkit-background-clip: border-box;
+    -webkit-text-fill-color: #ffffff;
+    color: #ffffff;
+    font-weight: 800;
+    box-shadow: 0 8px 18px rgba(94, 87, 255, 0.22);
+  }
+
+  /* Hover arrow turns white */
+  html body #page .masthead .main-nav > .menu-item-has-children:hover > a .menu-text:after,
+  html body #page .masthead .main-nav > .menu-item-has-children:hover > a .menu-item-text:after,
+  html body #page .masthead .main-nav > .dt-hovered > a .menu-text:after,
+  html body #page .masthead .main-nav > .dt-hovered > a .menu-item-text:after {
+    background: none;
+    -webkit-text-fill-color: #ffffff;
+    color: #ffffff;
+  }
+
+  /* No permanent pill on active/current page */
+  html body #page .masthead .main-nav > .current-menu-item > a .menu-text,
+  html body #page .masthead .main-nav > .current-menu-item > a .menu-item-text,
+  html body #page .masthead .main-nav > .current-menu-ancestor > a .menu-text,
+  html body #page .masthead .main-nav > .current-menu-ancestor > a .menu-item-text,
+  html body #page .masthead .main-nav > .act > a .menu-text,
+  html body #page .masthead .main-nav > .act > a .menu-item-text {
+    background: transparent;
+    box-shadow: none;
+    font-weight: 600;
+    background-image: linear-gradient(135deg, #2937ff 0%, #9a85ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: #2937ff;
+  }
+
+  /* Active/current page gets pill only when hovered */
+  html body #page .masthead .main-nav > .current-menu-item:hover > a .menu-text,
+  html body #page .masthead .main-nav > .current-menu-item:hover > a .menu-item-text,
+  html body #page .masthead .main-nav > .current-menu-ancestor:hover > a .menu-text,
+  html body #page .masthead .main-nav > .current-menu-ancestor:hover > a .menu-item-text,
+  html body #page .masthead .main-nav > .act:hover > a .menu-text,
+  html body #page .masthead .main-nav > .act:hover > a .menu-item-text {
+    background: linear-gradient(135deg, #2937ff 0%, #9a85ff 100%);
+    -webkit-background-clip: border-box;
+    -webkit-text-fill-color: #ffffff;
+    color: #ffffff;
+    font-weight: 800;
+    box-shadow: 0 8px 18px rgba(94, 87, 255, 0.22);
+  }
+
+  /* Active/current arrow stays gradient, turns white only on hover */
+  html body #page .masthead .main-nav > .current-menu-item > a .menu-text:after,
+  html body #page .masthead .main-nav > .current-menu-item > a .menu-item-text:after,
+  html body #page .masthead .main-nav > .current-menu-ancestor > a .menu-text:after,
+  html body #page .masthead .main-nav > .current-menu-ancestor > a .menu-item-text:after,
+  html body #page .masthead .main-nav > .act > a .menu-text:after,
+  html body #page .masthead .main-nav > .act > a .menu-item-text:after {
+    background-image: linear-gradient(135deg, #2937ff 0%, #9a85ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: #2937ff;
+  }
+
+  html body #page .masthead .main-nav > .current-menu-item:hover > a .menu-text:after,
+  html body #page .masthead .main-nav > .current-menu-item:hover > a .menu-item-text:after,
+  html body #page .masthead .main-nav > .current-menu-ancestor:hover > a .menu-text:after,
+  html body #page .masthead .main-nav > .current-menu-ancestor:hover > a .menu-item-text:after,
+  html body #page .masthead .main-nav > .act:hover > a .menu-text:after,
+  html body #page .masthead .main-nav > .act:hover > a .menu-item-text:after {
+    background: none;
+    -webkit-text-fill-color: #ffffff;
+    color: #ffffff;
+  }
+}
