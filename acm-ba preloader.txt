@@ -1,0 +1,13 @@
+<script>
+window.addEventListener("load", function () {
+setTimeout(function () {
+var preloader = document.getElementById("acmba-preloader");
+if (preloader) {
+preloader.classList.add("acmba-hidden");
+setTimeout(function () {
+preloader.remove();
+}, 500);
+}
+}, 700);
+});
+</script>
